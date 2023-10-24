@@ -25,9 +25,9 @@ import android.widget.Toast;
 
 import com.example.bulletinboard.MainActivity;
 import com.example.bulletinboard.R;
-import com.example.bulletinboard.ui.login.LoginViewModel;
-import com.example.bulletinboard.ui.login.LoginViewModelFactory;
+import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.databinding.ActivityLoginBinding;
+import com.example.bulletinboard.ui.registration.RegistrationActivity;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class LoginActivity extends AppCompatActivity {
@@ -48,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         final TextInputEditText usernameEditText = binding.emailEditText;
         final TextInputEditText passwordEditText = binding.passwordEditText;
         final Button loginButton = binding.loginButton;
+        final Button registerButton = binding.signupButton;
         final ProgressBar loadingProgressBar = binding.loading;
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
@@ -74,7 +75,12 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 loadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
+                    if(loginResult.getMessage()!=null && loginResult.getMessage().equals("User not found")) {
+                            openRegistrationActivity();
+                    }
+                    else {
+                        showLoginFailed(loginResult.getError());
+                    }
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
@@ -125,10 +131,18 @@ public class LoginActivity extends AppCompatActivity {
                         passwordEditText.getText().toString());
             }
         });
+
+
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              openRegistrationActivity();
+            }
+        });
     }
 
-    private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
+    private void updateUiWithUser(User model) {
+        String welcome = getString(R.string.welcome) + model.getEmail();
         // TODO : initiate successful logged in experience
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
         openMainActivity();
@@ -136,6 +150,12 @@ public class LoginActivity extends AppCompatActivity {
 
     private void showLoginFailed(@StringRes Integer errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+    }
+
+    private void openRegistrationActivity() {
+        Toast.makeText(getApplicationContext(), "Please sign up", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, RegistrationActivity.class);
+        startActivity(intent);
     }
 
     private void openMainActivity() {

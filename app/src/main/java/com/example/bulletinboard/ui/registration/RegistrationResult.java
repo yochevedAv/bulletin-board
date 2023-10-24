@@ -1,13 +1,11 @@
-package com.example.bulletinboard.ui.login;
+package com.example.bulletinboard.ui.registration;
 
 import androidx.annotation.Nullable;
 
 import com.example.bulletinboard.data.model.User;
 
-/**
- * Authentication result : success (user details) or error message.
- */
-class LoginResult {
+public class RegistrationResult {
+
     @Nullable
     private User success;
     @Nullable
@@ -16,13 +14,13 @@ class LoginResult {
     @Nullable
     private String message;
 
-    LoginResult(@Nullable Integer error, @Nullable String message) {
+    RegistrationResult(@Nullable Integer error, @Nullable String message) {
         this.error = error;
         this.message = message;
     }
 
 
-    LoginResult(@Nullable User success) {
+    RegistrationResult(@Nullable User success) {
         this.success = success;
     }
 

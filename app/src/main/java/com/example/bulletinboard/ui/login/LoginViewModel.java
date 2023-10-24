@@ -4,15 +4,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import android.content.Intent;
 import android.util.Patterns;
 
-import com.example.bulletinboard.MainActivity;
 import com.example.bulletinboard.data.LoginCallback;
 import com.example.bulletinboard.data.LoginDataSource;
-import com.example.bulletinboard.data.LoginRepository;
-import com.example.bulletinboard.data.Result;
-import com.example.bulletinboard.data.model.LoggedInUser;
+import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.R;
 
 public class LoginViewModel extends ViewModel implements LoginCallback {
@@ -68,12 +64,13 @@ public class LoginViewModel extends ViewModel implements LoginCallback {
     }
 
     @Override
-    public void onLoginSuccess(LoggedInUser loggedInUser) {
-        loginResult.setValue(new LoginResult(new LoggedInUserView(loggedInUser.getEmail())));
+    public void onLoginSuccess(User User) {
+
+        loginResult.setValue(new LoginResult(User));
     }
 
     @Override
-    public void onLoginFailure(Throwable t) {
-        loginResult.setValue(new LoginResult(R.string.login_failed));
+    public void onLoginFailure(Throwable t, String message) {
+        loginResult.setValue(new LoginResult(R.string.login_failed, message));
     }
 }

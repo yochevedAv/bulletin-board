@@ -1,17 +1,17 @@
 package com.example.bulletinboard;
 
-import com.example.bulletinboard.data.model.LoggedInUser;
+import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.data.model.User;
 
 import retrofit2.Call;
 import retrofit2.http.*;
 
 public interface BulletinBoardService {
-    @POST("/register")
+    @POST("register")
     Call<User> UserRegistration(@Body User user);
 
     @POST("login")
-    Call<User> UserLogin(@Body LoggedInUser user);
+    Call<User> UserLogin(@Body User user);
 
 
 
