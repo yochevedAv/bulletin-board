@@ -7,7 +7,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -131,6 +133,13 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void updateUiWithUser(User model) {
+
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("username", model.getUserName()); // Replace 'username' with the actual username
+        editor.putString("email", model.getEmail()); // Replace 'email' with the actual email
+        editor.apply();
+
         String welcome = getString(R.string.welcome) + model.getUserName();
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
         openMainActivity();
