@@ -16,10 +16,10 @@ public class UserDeserializer implements JsonDeserializer<User> {
         JsonObject userJson = responseJson.getAsJsonObject("user");
 
         User user = new User(
-                userJson.get("_id").getAsString(),
+                userJson.get("email").getAsString(),
                 userJson.get("username").getAsString(),
                 userJson.get("password").getAsString(),
-                userJson.get("email").getAsString()
+                userJson.get("_id").getAsString()
         );
         return user;
     }

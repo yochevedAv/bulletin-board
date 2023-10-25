@@ -34,6 +34,12 @@
     <string name="prompt_post_date">Date</string>
     <string name="prompt_post_creator_name">Creator Name</string>
     <string name="prompt_post_location">Location</string>
+    <string name="invalid_title">Title is null</string>
+    <string name="invalid_creator_name">Creator name must be >2 characters</string>
+    <string name="invalid_date">Not a valid date</string>
+    <string name="invalid_location">Not a valid location</string>
+    <string name="invalid_description">Description is null</string>
+
 
 
 

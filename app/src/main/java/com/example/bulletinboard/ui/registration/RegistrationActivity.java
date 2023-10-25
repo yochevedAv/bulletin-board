@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.bulletinboard.MainActivity;
 import com.example.bulletinboard.R;
+import com.example.bulletinboard.SharedPreferencesManager;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.databinding.ActivityRegistrationBinding;
 import com.google.android.material.textfield.TextInputEditText;
@@ -134,11 +135,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
     private void updateUiWithUser(User model) {
 
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("username", model.getUserName()); // Replace 'username' with the actual username
-        editor.putString("email", model.getEmail()); // Replace 'email' with the actual email
-        editor.apply();
+        SharedPreferencesManager.saveUser(getApplicationContext(), model);
 
         String welcome = getString(R.string.welcome) + model.getUserName();
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();

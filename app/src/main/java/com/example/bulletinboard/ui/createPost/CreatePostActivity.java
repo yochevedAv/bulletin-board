@@ -1,6 +1,7 @@
 package com.example.bulletinboard.ui.createPost;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,22 +10,36 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.bulletinboard.MainActivity;
 import com.example.bulletinboard.R;
+import com.example.bulletinboard.ResponseResult;
+import com.example.bulletinboard.SharedPreferencesManager;
+import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.databinding.ActivityCreatePostBinding;
+import com.example.bulletinboard.ui.registration.RegistrationFormState;
+import com.example.bulletinboard.ui.registration.RegistrationResult;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -60,73 +75,124 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
 
         setContentView(binding.getRoot());
 
-        createPostViewModel = new ViewModelProvider(this, new createPostViewModelFactory()).get(CreatePostViewModel.class);
+        createPostViewModel = new ViewModelProvider(this, new createPostViewModelFactory(this)).get(CreatePostViewModel.class);
 
         final TextInputEditText titleEditText = binding.editTextTitle;
         dateEditText = binding.editTextDate;
         final TextInputEditText creatorNameEditText = binding.editTextCreatorName;
         locationEditText = binding.editTextLocation;
         final TextInputLayout locationTextField = binding.textFieldLocation;
+        final TextInputEditText descriptionEditText = binding.editTextDescription;
         final Button createPostButton = binding.buttonCreatePost;
+
+
+        createPostViewModel.getCreatePostFormState().observe(this, new Observer<CreatePostFormState>() {
+            @Override
+            public void onChanged(@Nullable CreatePostFormState createPostFormState) {
+                if (createPostFormState == null) {
+                    return;
+                }
+                createPostButton.setEnabled(createPostFormState.isDataValid());
+
+                if (createPostFormState.getTitleError() != null) {
+                    titleEditText.setError(getString(createPostFormState.getTitleError()));
+                }
+                if (createPostFormState.getCreatorNameError() != null) {
+                    creatorNameEditText.setError(getString(createPostFormState.getCreatorNameError()));
+                }
+                if (createPostFormState.getDescriptionError() != null) {
+                    descriptionEditText.setError(getString(createPostFormState.getDescriptionError()));
+                }
+                if (createPostFormState.getDateError() != null) {
+                    dateEditText.setError(getString(createPostFormState.getDateError()));
+                }
+                if (createPostFormState.getLocationError() != null) {
+                    locationTextField.setError(getString(createPostFormState.getLocationError()));
+                }
+            }
+        });
+
+        createPostViewModel.getCreatePostResult().observe(this, new Observer<ResponseResult>() {
+            @Override
+            public void onChanged(@Nullable ResponseResult createPostResult) {
+                if (createPostResult == null) {
+                    return;
+                }
+                if (createPostResult.getError() != null) {
+                    Toast.makeText(getApplicationContext(), "Failed to save post", Toast.LENGTH_LONG).show();
+                }
+                if (createPostResult.getSuccess() != null) {
+                    finish();
+                }
+                setResult(Activity.RESULT_OK);
+
+                //Complete and destroy login activity once successful
+                finish();
+            }
+        });
+
+        TextWatcher afterTextChangedListener = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // ignore
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // ignore
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                createPostViewModel.CreatePostDataChanged(titleEditText.getText().toString(),creatorNameEditText.getText().toString(),dateEditText.getText().toString(),locationEditText.getText().toString(),descriptionEditText.getText().toString());
+            }
+        };
+
+
+        titleEditText.addTextChangedListener(afterTextChangedListener);
+        creatorNameEditText.addTextChangedListener(afterTextChangedListener);
+        dateEditText.addTextChangedListener(afterTextChangedListener);
+        locationEditText.addTextChangedListener(afterTextChangedListener);
+        descriptionEditText.addTextChangedListener(afterTextChangedListener);
 
         // Set the current date in the dateEditText field
         setCurrentDate();
 
 
-// Check if the app has permission to access the device's location
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Request the permission
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
-            // Permission already granted, you can get the current location
             getCurrentLocation();
         }
 
-        locationTextField.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editLocation(view);
-            }
-        });
+        locationTextField.setEndIconOnClickListener(view -> editLocation(view));
 
-//        // Set an OnClickListener for the dateEditText to show the DatePickerDialog
-//        dateEditText.setEndIconOnClickListener {
-//            // Respond to end icon presses
-//        }
-//        dateEditText.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                showDatePicker();
-//            }
-//        });
+        createPostButton.setOnClickListener(v -> {
 
-        // Handle the Create Post button click
-        createPostButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Handle creating the post with the entered data
-            }
+            User user = SharedPreferencesManager.getUser(this);
+
+            createPostViewModel.createPost(user.get_id(),titleEditText.getText().toString(),creatorNameEditText.getText().toString(),dateEditText.getText().toString(),locationEditText.getText().toString(),descriptionEditText.getText().toString());
+
+            finish();
         });
     }
+
 
     private void getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationProviderClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            double latitude = location.getLatitude();
-                            double longitude = location.getLongitude();
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
 
-                            String address = reverseGeocode(latitude, longitude);
-                            myLocation = address;
-                            locationEditText.setText(myLocation);
-                        }
+                        String address = reverseGeocode(latitude, longitude);
+                        myLocation = address;
+                        locationEditText.setText(myLocation);
                     }
                 });
     }
@@ -134,7 +200,7 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
     // Function to set the current date in the dateEditText field
     private void setCurrentDate() {
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         dateEditText.setText(dateFormat.format(calendar.getTime()));
     }
 
@@ -164,15 +230,12 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
-                // Check if the user has granted the location permission
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getCurrentLocation();
                 } else {
-                    // Permission denied, handle this situation
                 }
                 break;
             }
-            // Handle other permission requests if needed
         }
     }
 
@@ -234,7 +297,6 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    // Handle the result of the map interaction.
                 }
             }
     );

@@ -5,9 +5,7 @@ import android.app.Activity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -20,13 +18,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bulletinboard.MainActivity;
 import com.example.bulletinboard.R;
+import com.example.bulletinboard.ResponseResult;
+import com.example.bulletinboard.SharedPreferencesManager;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.databinding.ActivityLoginBinding;
 import com.example.bulletinboard.ui.registration.RegistrationActivity;
@@ -69,9 +68,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
+        loginViewModel.getLoginResult().observe(this, new Observer<ResponseResult>() {
             @Override
-            public void onChanged(@Nullable LoginResult loginResult) {
+            public void onChanged(@Nullable ResponseResult loginResult) {
                 if (loginResult == null) {
                     return;
                 }
@@ -145,13 +144,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void updateUiWithUser(User model) {
 
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("username", model.getUserName()); // Replace 'username' with the actual username
-        editor.putString("email", model.getEmail()); // Replace 'email' with the actual email
-        editor.apply();
+        SharedPreferencesManager.saveUser(getApplicationContext(), model);
 
-        String welcome = getString(R.string.welcome) + model.getEmail();
+        String welcome = getString(R.string.welcome) + model.getUserName();
         // TODO : initiate successful logged in experience
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
         openMainActivity();

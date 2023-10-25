@@ -7,13 +7,11 @@ import androidx.lifecycle.ViewModel;
 
 import android.util.Patterns;
 
-import com.example.bulletinboard.data.LoginCallback;
-import com.example.bulletinboard.data.LoginDataSource;
-import com.example.bulletinboard.data.RegistrationCallback;
+import com.example.bulletinboard.data.ResponseCallback;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.R;
 
-public class RegistrationViewModel extends ViewModel implements RegistrationCallback {
+public class RegistrationViewModel extends ViewModel implements ResponseCallback<User> {
 
     private MutableLiveData<RegistrationFormState> registrationFormState = new MutableLiveData<>();
     private MutableLiveData<RegistrationResult> registrationResult = new MutableLiveData<>();
@@ -72,12 +70,13 @@ public class RegistrationViewModel extends ViewModel implements RegistrationCall
     }
 
     @Override
-    public void onRegistrationSuccess(User User) {
-        registrationResult.setValue(new RegistrationResult(User));
+    public void onResponseSuccess(User response) {
+        registrationResult.setValue(new RegistrationResult(response));
+
     }
 
     @Override
-    public void onRegistrationFailure(Throwable t, String message) {
+    public void onResponseFailure(Throwable t, String message) {
         registrationResult.setValue(new RegistrationResult(R.string.login_failed, message));
     }
 }

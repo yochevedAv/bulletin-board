@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
+import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.ui.login.LoginActivity;
 import com.example.bulletinboard.ui.registration.RegistrationActivity;
 
@@ -15,12 +16,8 @@ public class MyApplication extends Application {
         super.onCreate();
         ApiClient.getInstance(); // Initialize the API client
 
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        String username = sharedPreferences.getString("username", null);
-        String email = sharedPreferences.getString("email", null);
-
-
-        if (username != null && email != null) {
+        User user = SharedPreferencesManager.getUser(getApplicationContext());
+        if (user != null) {
             openMainActivity();
         } else {
             openLoginActivity();

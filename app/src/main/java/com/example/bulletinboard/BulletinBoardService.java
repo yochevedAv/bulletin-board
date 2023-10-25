@@ -1,5 +1,6 @@
 package com.example.bulletinboard;
 
+import com.example.bulletinboard.data.model.Post;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.data.model.User;
 
@@ -12,6 +13,10 @@ public interface BulletinBoardService {
 
     @POST("login")
     Call<User> UserLogin(@Body User user);
+
+    @POST("createPost")
+    Call<Post> CreatePost(@Body Post post);
+
 
 
 

@@ -21,7 +21,7 @@ public class LoginDataSource {
     ApiClient apiClient = ApiClient.getInstance();
     BulletinBoardService bulletinBoardService = apiClient.getBulletinBoardService();
 
-    public void login(String email, String password, LoginCallback loginCallback) {
+    public void login(String email, String password, ResponseCallback responseCallback) {
         Call<User> call = bulletinBoardService.UserLogin(new User(email, "", password,""));
         call.enqueue(new Callback<User>() {
             @Override
@@ -30,8 +30,7 @@ public class LoginDataSource {
                 if (response.isSuccessful()) {
                     // Handle a successful response here
                     User user = response.body();
-                    User User = new User(user.getEmail(),"", password,"");
-                    loginCallback.onLoginSuccess(User);
+                    responseCallback.onResponseSuccess(user);
                 } else {
                     String errorBodyString = "";
 
@@ -47,63 +46,18 @@ public class LoginDataSource {
                     String errorMessage = errorData.getError();
 
 
-                    loginCallback.onLoginFailure(new Exception("Login failed: "),errorMessage);
+                    responseCallback.onResponseFailure(new Exception("Login failed: "),errorMessage);
                 }
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                loginCallback.onLoginFailure(t, "failed");
+                responseCallback.onResponseFailure(t, "failed");
             }
         });
     }
 
 
-//    public void login(String email, String password, LoginCallback loginCallback) {
-//        Call<User> call = bulletinBoardService.UserLogin(new User(email, password));
-//        call.enqueue(new Callback<User>() {
-//            @Override
-//            public void onResponse(Call<User> call, Response<User> response) {
-//
-//                if (response.isSuccessful()) {
-//
-//                    String responseBody = response.raw().toString();
-//                    Log.d("Response", responseBody);
-//                    User user = response.body();
-//                    User User = new User(user.getEmail(), password);
-//                    loginCallback.onLoginSuccess(User);
-//                } else {
-//
-//                    if (response.errorBody() != null) {
-//                        try {
-//                            String errorBodyString = response.errorBody().string();
-//
-//                            // Create a Gson instance
-//                            Gson gson = new Gson();
-//
-//                            // Parse the error response string into an ErrorData object
-//                            ErrorData errorData = gson.fromJson(errorBodyString, ErrorData.class);
-//
-//                            // Now you can access the error data
-//                            String errorMessage = errorData.getError();
-//
-//                            // Handle the error data as needed
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//
-//
-//                    loginCallback.onLoginFailure(new Exception("Login failed")); // You can pass an appropriate exception here
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<User> call, Throwable t) {
-//    loginCallback.onLoginFailure(t);
-//            }
-//        });
-//    }
 
 
     public void logout() {

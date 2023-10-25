@@ -6,15 +6,16 @@ import androidx.lifecycle.ViewModel;
 
 import android.util.Patterns;
 
-import com.example.bulletinboard.data.LoginCallback;
+import com.example.bulletinboard.ResponseResult;
 import com.example.bulletinboard.data.LoginDataSource;
+import com.example.bulletinboard.data.ResponseCallback;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.R;
 
-public class LoginViewModel extends ViewModel implements LoginCallback {
+public class LoginViewModel extends ViewModel implements ResponseCallback<User> {
 
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
-    private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
+    private MutableLiveData<ResponseResult> loginResult = new MutableLiveData<>();
 
     private LoginDataSource dataSource;
 
@@ -27,7 +28,7 @@ public class LoginViewModel extends ViewModel implements LoginCallback {
         return loginFormState;
     }
 
-    LiveData<LoginResult> getLoginResult() {
+    LiveData<ResponseResult> getLoginResult() {
         return loginResult;
     }
 
@@ -63,14 +64,16 @@ public class LoginViewModel extends ViewModel implements LoginCallback {
         return password != null && password.trim().length() > 5;
     }
 
-    @Override
-    public void onLoginSuccess(User User) {
 
-        loginResult.setValue(new LoginResult(User));
+
+
+    @Override
+    public void onResponseSuccess(User response) {
+        loginResult.setValue(new ResponseResult(response));
     }
 
     @Override
-    public void onLoginFailure(Throwable t, String message) {
-        loginResult.setValue(new LoginResult(R.string.login_failed, message));
+    public void onResponseFailure(Throwable t, String message) {
+        loginResult.setValue(new ResponseResult(R.string.login_failed, message));
     }
 }

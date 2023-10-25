@@ -1,4 +1,4 @@
-package com.example.bulletinboard.ui.login;
+package com.example.bulletinboard;
 
 import androidx.annotation.Nullable;
 
@@ -7,7 +7,7 @@ import com.example.bulletinboard.data.model.User;
 /**
  * Authentication result : success (user details) or error message.
  */
-class LoginResult {
+public class ResponseResult {
     @Nullable
     private User success;
     @Nullable
@@ -16,23 +16,23 @@ class LoginResult {
     @Nullable
     private String message;
 
-    LoginResult(@Nullable Integer error, @Nullable String message) {
+    public ResponseResult(@Nullable Integer error, @Nullable String message) {
         this.error = error;
         this.message = message;
     }
 
 
-    LoginResult(@Nullable User success) {
+    public ResponseResult(@Nullable User success) {
         this.success = success;
     }
 
     @Nullable
-    User getSuccess() {
+    public User getSuccess() {
         return success;
     }
 
     @Nullable
-    Integer getError() {
+    public Integer getError() {
         return error;
     }
 

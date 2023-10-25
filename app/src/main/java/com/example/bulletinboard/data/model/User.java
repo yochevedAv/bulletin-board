@@ -7,7 +7,6 @@ public class User {
     @Nullable
     private String _id;
     private String email;
-
     @Nullable
     private String username;
     private String password;
@@ -50,4 +49,6 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+
 }
