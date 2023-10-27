@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 
 import android.util.Patterns;
 
+import com.example.bulletinboard.ResponseResult;
 import com.example.bulletinboard.data.ResponseCallback;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.R;
@@ -14,8 +15,7 @@ import com.example.bulletinboard.R;
 public class RegistrationViewModel extends ViewModel implements ResponseCallback<User> {
 
     private MutableLiveData<RegistrationFormState> registrationFormState = new MutableLiveData<>();
-    private MutableLiveData<RegistrationResult> registrationResult = new MutableLiveData<>();
-
+    private MutableLiveData<ResponseResult> responseResult = new MutableLiveData<>();
     private RegistrationDataSource dataSource;
 
 
@@ -27,8 +27,8 @@ public class RegistrationViewModel extends ViewModel implements ResponseCallback
         return registrationFormState;
     }
 
-    LiveData<RegistrationResult> getRegistrationResult() {
-        return registrationResult;
+    LiveData<ResponseResult> getResponseResult() {
+        return responseResult;
     }
 
     public void register(String username, String password, String email) {
@@ -71,12 +71,12 @@ public class RegistrationViewModel extends ViewModel implements ResponseCallback
 
     @Override
     public void onResponseSuccess(User response) {
-        registrationResult.setValue(new RegistrationResult(response));
+        responseResult.setValue(new ResponseResult(response));
 
     }
 
     @Override
     public void onResponseFailure(Throwable t, String message) {
-        registrationResult.setValue(new RegistrationResult(R.string.login_failed, message));
+        responseResult.setValue(new ResponseResult(R.string.login_failed, message));
     }
 }

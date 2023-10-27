@@ -41,6 +41,9 @@
     <string name="invalid_description">Description is null</string>
 
 
+    <string name="get_posts_failed">"Get Post failed"</string>
+
+
 
 
 </resources>

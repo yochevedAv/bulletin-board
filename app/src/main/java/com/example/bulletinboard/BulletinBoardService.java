@@ -4,6 +4,8 @@ import com.example.bulletinboard.data.model.Post;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.data.model.User;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.*;
 
@@ -17,6 +19,8 @@ public interface BulletinBoardService {
     @POST("createPost")
     Call<Post> CreatePost(@Body Post post);
 
+    @GET("getPosts")
+    Call<List<Post>> GetPosts();
 
 
 

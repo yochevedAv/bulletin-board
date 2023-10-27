@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.bulletinboard.MainActivity;
 import com.example.bulletinboard.R;
+import com.example.bulletinboard.ResponseResult;
 import com.example.bulletinboard.SharedPreferencesManager;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.databinding.ActivityRegistrationBinding;
@@ -70,18 +71,18 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         });
 
-        registrationViewModel.getRegistrationResult().observe(this, new Observer<RegistrationResult>() {
+        registrationViewModel.getResponseResult().observe(this, new Observer<ResponseResult>() {
             @Override
-            public void onChanged(@Nullable RegistrationResult loginResult) {
-                if (loginResult == null) {
+            public void onChanged(@Nullable ResponseResult responseResult) {
+                if (responseResult == null) {
                     return;
                 }
                 loadingProgressBar.setVisibility(View.GONE);
-                if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
+                if (responseResult.getError() != null) {
+                    showLoginFailed(responseResult.getError());
                 }
-                if (loginResult.getSuccess() != null) {
-                    updateUiWithUser(loginResult.getSuccess());
+                if (responseResult.getSuccess() != null) {
+                    updateUiWithUser(responseResult.getSuccess());
                 }
                 setResult(Activity.RESULT_OK);
 
