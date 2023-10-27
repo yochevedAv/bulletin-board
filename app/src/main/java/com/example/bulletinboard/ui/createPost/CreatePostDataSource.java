@@ -18,7 +18,7 @@ public class CreatePostDataSource {
     BulletinBoardService bulletinBoardService = apiClient.getBulletinBoardService();
 
     public void createPost(String userId, String title, String creatorName, String date,String location, String description, ResponseCallback<Post> responseCallback) {
-        Call<Post> call = bulletinBoardService.CreatePost (new Post(userId,title,creatorName,date,location,description));
+        Call<Post> call = bulletinBoardService.CreatePost (new Post(userId,title,creatorName,date,location,description,null));
         call.enqueue(new Callback<Post>() {
             @Override
             public void onResponse(Call<Post> call, Response<Post> response) {

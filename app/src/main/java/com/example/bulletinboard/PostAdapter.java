@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bulletinboard.data.model.Post;
+import com.example.bulletinboard.ui.home.BulletinBoardViewModel;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,9 +30,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
     private List<Post> posts;
+    private BulletinBoardViewModel viewModel;
 
-    public PostAdapter() {
-
+    public PostAdapter(BulletinBoardViewModel viewModel) {
+        this.viewModel = viewModel;
     }
 
     public void setPosts(List<Post> posts) {
@@ -54,7 +56,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = posts.get(position);
-        holder.bind(post);
+        holder.bind(post, viewModel);
     }
 
     @Override
@@ -70,8 +72,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             this.binding = binding;
         }
 
-        public void bind(Post post) {
+        public void bind(Post post, BulletinBoardViewModel viewModel) {
             binding.setPost(post);
+            binding.setViewModel(viewModel);
             binding.executePendingBindings();
 
             // Initialize the MapView and handle map setup

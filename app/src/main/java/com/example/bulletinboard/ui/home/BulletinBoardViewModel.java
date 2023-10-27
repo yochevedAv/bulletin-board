@@ -1,6 +1,7 @@
 package com.example.bulletinboard.ui.home;
 
 import android.util.Patterns;
+import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -20,9 +21,13 @@ import com.example.bulletinboard.ui.registration.RegistrationDataSource;
 import com.example.bulletinboard.ui.registration.RegistrationFormState;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,10 +36,15 @@ import retrofit2.Response;
 public class BulletinBoardViewModel extends ViewModel implements ResponseCallback<List<Post>> {
 
     MutableLiveData<List<Post>> postsLiveData = new MutableLiveData<>();
+    private MutableLiveData<Boolean> deletePostResult = new MutableLiveData<>();
     private MutableLiveData<PostResult> postResult = new MutableLiveData<>();
 
     public LiveData<List<Post>> getPostsLiveData() {
         return postsLiveData;
+    }
+
+    public LiveData<Boolean> getDeletePostResult() {
+        return deletePostResult;
     }
 
     public LiveData<PostResult> getResponseResult() {
@@ -84,6 +94,45 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
             }
         });
     }
+
+    public void deletePost(String postId) {
+
+            Call<ResponseBody> deleteCall =bulletinBoardService.DeletePost(postId);
+            deleteCall.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                    try {
+                        if(response.body()!=null) {
+                            JSONObject jsonResponse = new JSONObject(response.body().string());
+                            boolean success = jsonResponse.optBoolean("success", false);
+                            if (success) {
+                                deletePostResult.setValue(true);
+                            } else {
+                                deletePostResult.setValue(false);
+                            }
+                        }
+                        else{
+                            deletePostResult.setValue(false);
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                        // Handle exceptions
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    deletePostResult.setValue(false);
+                }
+            });
+        }
+
+    public void onDeleteButtonClick(Post post) {
+        deletePost(post.getId());
+    }
+
+
 
 
 

@@ -44,14 +44,12 @@ public class HomeFragment extends Fragment {
         binding.setViewModel(viewModel);
         binding.setLifecycleOwner(this);
 
-
-
         // Fetch posts
         viewModel.getPosts();
 
         RecyclerView recyclerView = binding.recyclerViewPosts;
 
-        adapter = new PostAdapter(); // Create your adapter
+        adapter = new PostAdapter(viewModel); // Create your adapter
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
 
@@ -68,6 +66,14 @@ public class HomeFragment extends Fragment {
                 recyclerView.setAdapter(adapter);
             }
 
+        });
+
+        viewModel.getDeletePostResult().observe(getActivity(), success -> {
+            if (success) {
+                viewModel.getPosts();
+            } else {
+                // Handle failed post deletion
+            }
         });
 
 

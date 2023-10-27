@@ -8,6 +8,10 @@
         <import type="android.view.View" />
 
         <variable
+            name="viewModel"
+            type="com.example.bulletinboard.ui.home.BulletinBoardViewModel" />
+
+        <variable
             name="post"
             type="com.example.bulletinboard.data.model.Post" />
     </data>
@@ -66,14 +70,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/baseline_edit_location_alt_24"
-                    android:contentDescription="Edit Post" />
+                    android:contentDescription="Edit Post"
+                    />
 
                 <ImageButton
                     android:id="@+id/deleteButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:clickable="true"
                     android:src="@drawable/baseline_delete_24"
-                    android:contentDescription="Delete Post" />
+                    android:contentDescription="Delete Post"
+                    android:onClick ="@{(view) -> viewModel.onDeleteButtonClick(post)}"/>
 
             </LinearLayout>
 
