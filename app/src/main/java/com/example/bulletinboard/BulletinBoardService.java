@@ -26,6 +26,10 @@ public interface BulletinBoardService {
     @DELETE("deletePost/{postId}")
     Call<ResponseBody> DeletePost(@Path("postId") String postId);
 
+    @PUT("updatePost")
+    Call<Post> UpdatePost(@Body Post updatedPost);
+
+
 
 //    @GET("/posts")
 //    Call<List<Post>> getPosts();

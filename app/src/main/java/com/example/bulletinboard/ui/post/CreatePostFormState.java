@@ -1,4 +1,4 @@
-package com.example.bulletinboard.ui.createPost;
+package com.example.bulletinboard.ui.post;
 
 import androidx.annotation.Nullable;
 
@@ -59,7 +59,7 @@ public class CreatePostFormState {
         return descriptionError;
     }
 
-    boolean isDataValid() {
+    public boolean isDataValid() {
         return isDataValid;
     }
 }

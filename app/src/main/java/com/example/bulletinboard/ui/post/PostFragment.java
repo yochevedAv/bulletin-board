@@ -1,38 +1,53 @@
-package com.example.bulletinboard.ui.createPost;
+package com.example.bulletinboard.ui.post;
+
+import static android.app.Activity.RESULT_OK;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.bulletinboard.R;
 import com.example.bulletinboard.ResponseResult;
 import com.example.bulletinboard.SharedPreferencesManager;
+import com.example.bulletinboard.data.model.Post;
 import com.example.bulletinboard.data.model.User;
-import com.example.bulletinboard.databinding.ActivityCreatePostBinding;
-import com.example.bulletinboard.ui.post.CreatePostFormState;
-import com.example.bulletinboard.ui.post.CreatePostViewModel;
+import com.example.bulletinboard.databinding.FragmentPostBinding;
+import com.example.bulletinboard.ui.createPost.createPostViewModelFactory;
+import com.example.bulletinboard.ui.home.HomeFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -41,31 +56,56 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
-public class CreatePostActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+public class PostFragment extends Fragment {
+
+    //edit = 1 new = 0
+    private boolean action;
+
+    private Post editPost;
 
     private CreatePostViewModel createPostViewModel;
-    private ActivityCreatePostBinding binding;
+    private FragmentPostBinding binding;
     private TextInputEditText dateEditText;
     private TextInputEditText locationEditText;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
-    private static final int REQUEST_LOCATION_UPDATE = 1;
 
     private String myLocation;
 
+    public PostFragment()
+    {
+
+    }
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityCreatePostBinding.inflate(getLayoutInflater());
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+    }
 
-        setContentView(binding.getRoot());
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-        createPostViewModel = new ViewModelProvider(this, new createPostViewModelFactory(this)).get(CreatePostViewModel.class);
+        Bundle args = getArguments();
+
+        if (args != null) {
+            String actionValue = args.getString("action");
+            action = actionValue.equals("edit")?true:false;
+            if(action){
+                editPost =  (Post) args.getSerializable("post");
+            }
+        }
+
+        binding = FragmentPostBinding.inflate(inflater, container, false);
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        createPostViewModel = new ViewModelProvider(this, new createPostViewModelFactory(getContext())).get(CreatePostViewModel.class);
 
         final TextInputEditText titleEditText = binding.editTextTitle;
         dateEditText = binding.editTextDate;
@@ -73,16 +113,16 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
         locationEditText = binding.editTextLocation;
         final TextInputLayout locationTextField = binding.textFieldLocation;
         final TextInputEditText descriptionEditText = binding.editTextDescription;
-        final Button createPostButton = binding.buttonCreatePost;
+        final Button savePostButton = binding.buttonSavePost;
 
 
-        createPostViewModel.getCreatePostFormState().observe(this, new Observer<CreatePostFormState>() {
+        createPostViewModel.getCreatePostFormState().observe(getActivity(), new Observer<CreatePostFormState>() {
             @Override
             public void onChanged(@Nullable CreatePostFormState createPostFormState) {
                 if (createPostFormState == null) {
                     return;
                 }
-                createPostButton.setEnabled(createPostFormState.isDataValid());
+                savePostButton.setEnabled(createPostFormState.isDataValid());
 
                 if (createPostFormState.getTitleError() != null) {
                     titleEditText.setError(getString(createPostFormState.getTitleError()));
@@ -102,22 +142,22 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
             }
         });
 
-        createPostViewModel.getCreatePostResult().observe(this, new Observer<ResponseResult>() {
+        createPostViewModel.getCreatePostResult().observe(getActivity(), new Observer<ResponseResult>() {
             @Override
             public void onChanged(@Nullable ResponseResult createPostResult) {
                 if (createPostResult == null) {
                     return;
                 }
                 if (createPostResult.getError() != null) {
-                    Toast.makeText(getApplicationContext(), "Failed to save post", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Failed to save post", Toast.LENGTH_LONG).show();
                 }
                 if (createPostResult.getSuccess() != null) {
-                    finish();
+                    moveToMainFragment();
                 }
-                setResult(Activity.RESULT_OK);
-
-                //Complete and destroy login activity once successful
-                finish();
+//                setResult(Activity.RESULT_OK);
+//
+//                //Complete and destroy login activity once successful
+//                finish();
             }
         });
 
@@ -134,7 +174,7 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
 
             @Override
             public void afterTextChanged(Editable s) {
-                createPostViewModel.CreatePostDataChanged(titleEditText.getText().toString(),creatorNameEditText.getText().toString(),dateEditText.getText().toString(),locationEditText.getText().toString(),descriptionEditText.getText().toString());
+                createPostViewModel.CreatePostDataChanged(titleEditText.getText().toString(), creatorNameEditText.getText().toString(), dateEditText.getText().toString(), locationEditText.getText().toString(), descriptionEditText.getText().toString());
             }
         };
 
@@ -149,9 +189,9 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
         setCurrentDate();
 
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
             getCurrentLocation();
@@ -159,30 +199,54 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
 
         locationTextField.setEndIconOnClickListener(view -> editLocation(view));
 
-        createPostButton.setOnClickListener(v -> {
+        if(action){
+            binding.setEditPost(editPost);
+        }
 
-            User user = SharedPreferencesManager.getUser(this);
+        return binding.getRoot();
+    }
 
-            createPostViewModel.createPost(user.get_id(),titleEditText.getText().toString(),creatorNameEditText.getText().toString(),dateEditText.getText().toString(),locationEditText.getText().toString(),descriptionEditText.getText().toString());
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-            finish();
+        binding.buttonSavePost.setOnClickListener(v -> {
+            User user = SharedPreferencesManager.getUser(getActivity());
+            if (!action) {
+                createPostViewModel.createPost(user.get_id(), binding.editTextTitle.getText().toString(), binding.editTextCreatorName.getText().toString(), dateEditText.getText().toString(), locationEditText.getText().toString(), binding.editTextDescription.getText().toString());
+                moveToMainFragment();
+            }
+            else{
+                createPostViewModel.editPost(user.get_id(), binding.editTextTitle.getText().toString(), binding.editTextCreatorName.getText().toString(), dateEditText.getText().toString(), locationEditText.getText().toString(), binding.editTextDescription.getText().toString(),editPost.getId());
+                moveToMainFragment();
+            }
         });
     }
 
+    private void moveToMainFragment() {
+
+        Fragment homeFragment = new HomeFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, homeFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
     private void getCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        fusedLocationProviderClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
+
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(getActivity(), location -> {
                     if (location != null) {
                         double latitude = location.getLatitude();
                         double longitude = location.getLongitude();
 
-                        String address = reverseGeocode(latitude, longitude);
-                        myLocation = address;
-                        locationEditText.setText(myLocation);
+                        if(locationEditText.getText().toString().equals("")) {
+                            String address = reverseGeocode(latitude, longitude);
+                            myLocation = address;
+                            locationEditText.setText(myLocation);
+                        }
                     }
                 });
     }
@@ -195,7 +259,7 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
     }
 
     private String reverseGeocode(double latitude, double longitude) {
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
         List<Address> addresses;
 
         try {
@@ -242,41 +306,41 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
             mapIntent.setPackage("com.google.android.apps.maps");
         }
 
-        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+        if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             mapActivityResultLauncher.launch(mapIntent);
         } else {
         }
     }
 
 
-    private static final int REQUEST_CODE_MAP = 123;
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_LOCATION_UPDATE) {
-            if (resultCode == RESULT_OK) {
-                // Get the updated location from the data
-                String updatedLocation = data.getStringExtra("location");
-                if (updatedLocation != null) {
-                    // Update the location EditText with the new location
-                    EditText locationEditText = findViewById(R.id.editTextLocation);
-                    locationEditText.setText(updatedLocation);
-                }
-            }
-        }
-
-        if (requestCode == REQUEST_LOCATION_UPDATE && resultCode == RESULT_OK) {
-            // Handle the chosen location data from the 'data' intent
-            String chosenLocation = data.getDataString();
-            locationEditText.setText(chosenLocation);
-        }
-    }
+    // @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == REQUEST_LOCATION_UPDATE) {
+//            if (resultCode == RESULT_OK) {
+//                // Get the updated location from the data
+//                String updatedLocation = data.getStringExtra("location");
+//                if (updatedLocation != null) {
+//                    // Update the location EditText with the new location
+//                    EditText locationEditText = binding.editTextLocation;
+//                    locationEditText.setText(updatedLocation);
+//                }
+//            }
+//        }
+//
+//        if (requestCode == REQUEST_LOCATION_UPDATE && resultCode == RESULT_OK) {
+//            // Handle the chosen location data from the 'data' intent
+//            String chosenLocation = data.getDataString();
+//            locationEditText.setText(chosenLocation);
+//        }
+//    }
 
     private boolean isPackageInstalled(String packageName) {
         try {
-            getPackageManager().getPackageInfo(packageName, 0);
+            getActivity().getPackageManager().getPackageInfo(packageName, 0);
             return true;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
@@ -286,9 +350,8 @@ public class CreatePostActivity extends AppCompatActivity implements ActivityCom
     private final ActivityResultLauncher<Intent> mapActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
+                if (result.getResultCode() == RESULT_OK) {
                 }
             }
     );
-
 }

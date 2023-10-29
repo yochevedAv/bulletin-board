@@ -71,7 +71,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/baseline_edit_location_alt_24"
                     android:contentDescription="Edit Post"
-                    />
+                />
 
                 <ImageButton
                     android:id="@+id/deleteButton"

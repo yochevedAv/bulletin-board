@@ -1,10 +1,8 @@
-package com.example.bulletinboard.ui.createPost;
+package com.example.bulletinboard.ui.post;
 
-import android.app.Application;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
-import android.util.Patterns;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -14,6 +12,8 @@ import com.example.bulletinboard.R;
 import com.example.bulletinboard.ResponseResult;
 import com.example.bulletinboard.data.ResponseCallback;
 import com.example.bulletinboard.data.model.Post;
+import com.example.bulletinboard.ui.createPost.CreatePostDataSource;
+import com.example.bulletinboard.ui.post.CreatePostFormState;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -31,16 +31,16 @@ public class CreatePostViewModel extends ViewModel implements ResponseCallback<P
     private CreatePostDataSource dataSource;
     private Context mContext;
 
-    CreatePostViewModel(CreatePostDataSource createPostDataSource, Context context) {
+    public CreatePostViewModel(CreatePostDataSource createPostDataSource, Context context) {
         this.dataSource = createPostDataSource;
         mContext = context;
     }
 
-    LiveData<CreatePostFormState> getCreatePostFormState() {
+    public LiveData<CreatePostFormState> getCreatePostFormState() {
         return createPostFormState;
     }
 
-    LiveData<ResponseResult> getCreatePostResult() {
+    public LiveData<ResponseResult> getCreatePostResult() {
         return responseResult;
     }
 
@@ -109,7 +109,13 @@ public class CreatePostViewModel extends ViewModel implements ResponseCallback<P
 
     public void createPost(String userId, String title, String creatorName, String date,String location, String description) {
 
-        dataSource.createPost(userId, title, creatorName ,date,location,description,this);
+        Post post = new Post(userId, title, creatorName ,date,location,description,null);
+        dataSource.createPost(post,this);
+    }
+
+    public void editPost(String userId, String title, String creatorName, String date,String location, String description, String id) {
+        Post post = new Post(userId, title, creatorName ,date,location,description,id);
+        dataSource.updatePost(post,this);
     }
 
     @Override

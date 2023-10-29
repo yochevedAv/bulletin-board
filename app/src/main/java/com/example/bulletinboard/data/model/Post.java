@@ -2,7 +2,9 @@ package com.example.bulletinboard.data.model;
 
 import androidx.annotation.Nullable;
 
-public class Post {
+import java.io.Serializable;
+
+public class Post implements Serializable {
 
     @Nullable
     private String _id;

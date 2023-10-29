@@ -6,10 +6,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bulletinboard.data.model.Post;
 import com.example.bulletinboard.ui.home.BulletinBoardViewModel;
+import com.example.bulletinboard.ui.post.PostFragment;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,8 +35,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private List<Post> posts;
     private BulletinBoardViewModel viewModel;
 
-    public PostAdapter(BulletinBoardViewModel viewModel) {
+    public PostAdapter(BulletinBoardViewModel viewModel,OnUpdateButtonClickListener listener) {
         this.viewModel = viewModel;
+        this.updateButtonClickListener = listener;
     }
 
     public void setPosts(List<Post> posts) {
@@ -57,7 +61,22 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = posts.get(position);
         holder.bind(post, viewModel);
+
+        holder.binding.editButton.setOnClickListener(view -> {
+
+            if (updateButtonClickListener != null) {
+                updateButtonClickListener.onUpdateButtonClicked(post);
+            }
+        });
     }
+
+    public interface OnUpdateButtonClickListener {
+        void onUpdateButtonClicked(Post post);
+    }
+
+    private OnUpdateButtonClickListener updateButtonClickListener;
+
+
 
     @Override
     public int getItemCount() {

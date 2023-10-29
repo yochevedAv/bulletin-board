@@ -1,8 +1,11 @@
 package com.example.bulletinboard.ui.home;
 
+import android.content.Context;
 import android.util.Patterns;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -12,11 +15,13 @@ import com.example.bulletinboard.BulletinBoardService;
 import com.example.bulletinboard.PostResult;
 import com.example.bulletinboard.R;
 import com.example.bulletinboard.ResponseResult;
+import com.example.bulletinboard.UpdatePostResult;
 import com.example.bulletinboard.data.ResponseCallback;
 import com.example.bulletinboard.data.model.ErrorResponse;
 import com.example.bulletinboard.data.model.Post;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.ui.BulletinBoardPostsResult;
+import com.example.bulletinboard.ui.post.PostFragment;
 import com.example.bulletinboard.ui.registration.RegistrationDataSource;
 import com.example.bulletinboard.ui.registration.RegistrationFormState;
 import com.google.gson.Gson;
@@ -35,9 +40,12 @@ import retrofit2.Response;
 
 public class BulletinBoardViewModel extends ViewModel implements ResponseCallback<List<Post>> {
 
+    private Context context;
     MutableLiveData<List<Post>> postsLiveData = new MutableLiveData<>();
     private MutableLiveData<Boolean> deletePostResult = new MutableLiveData<>();
     private MutableLiveData<PostResult> postResult = new MutableLiveData<>();
+    private MutableLiveData<UpdatePostResult> updatePostResult = new MutableLiveData<>();
+//    private MutableLiveData<Post> updatePostLiveData = new MutableLiveData<>();
 
     public LiveData<List<Post>> getPostsLiveData() {
         return postsLiveData;
@@ -46,7 +54,9 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
     public LiveData<Boolean> getDeletePostResult() {
         return deletePostResult;
     }
-
+    public LiveData<UpdatePostResult> getUpdatePostResult() {
+        return updatePostResult;
+    }
     public LiveData<PostResult> getResponseResult() {
         return postResult;
     }
@@ -63,9 +73,8 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
                 if (response.isSuccessful()) {
                     // Handle a successful response here
                     postsLiveData.setValue(response.body());
-
                     postResult.setValue(new PostResult(response.body()));
-                    //responseCallback.onResponseSuccess(User);
+
                 } else {
                     String errorBodyString = "";
 
@@ -128,12 +137,12 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
             });
         }
 
+
+
+
     public void onDeleteButtonClick(Post post) {
         deletePost(post.getId());
     }
-
-
-
 
 
 
