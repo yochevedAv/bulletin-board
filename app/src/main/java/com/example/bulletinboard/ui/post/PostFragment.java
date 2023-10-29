@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -186,6 +187,8 @@ public class PostFragment extends Fragment {
         descriptionEditText.addTextChangedListener(afterTextChangedListener);
 
         // Set the current date in the dateEditText field
+
+        //locationEditText.setText(myLocation);
         setCurrentDate();
 
 
@@ -202,6 +205,35 @@ public class PostFragment extends Fragment {
         if(action){
             binding.setEditPost(editPost);
         }
+
+//        LocationViewModel locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+//
+//        locationViewModel.getLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
+//            @Override
+//            public void onChanged(Location location) {
+//                if (location != null) {
+//                    // Update your fragment UI with the new location data
+//                    double latitude = location.getLatitude();
+//                    double longitude = location.getLongitude();
+//                    // Update UI elements with the new location
+//                }
+//            }
+//        });
+//
+//        LocationCallback locationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//                if (locationResult == null) {
+//                    return;
+//                }
+//                for (Location location : locationResult.getLocations()) {
+//                    // Handle the received location
+//                    locationViewModel.setLocation(location);
+//                }
+//            }
+//        };
+
+
 
         return binding.getRoot();
     }
@@ -237,18 +269,30 @@ public class PostFragment extends Fragment {
             return;
         }
 
-        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(getActivity(), location -> {
-                    if (location != null) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
+        LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(10000) // Update every 10 seconds
+                .setFastestInterval(5000); // Fastest update interval
 
-                        if(locationEditText.getText().toString().equals("")) {
-                            String address = reverseGeocode(latitude, longitude);
-                            myLocation = address;
-                            locationEditText.setText(myLocation);
-                        }
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // Handle the received location
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    myLocation =  reverseGeocode(latitude,longitude);
+                    if(locationEditText.getText().toString().equals("")) {
+                        locationEditText.setText(myLocation);
                     }
-                });
+                }
+            }
+        };
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+
     }
 
     // Function to set the current date in the dateEditText field
@@ -279,19 +323,19 @@ public class PostFragment extends Fragment {
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case LOCATION_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getCurrentLocation();
-                } else {
-                }
-                break;
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        switch (requestCode) {
+//            case LOCATION_PERMISSION_REQUEST_CODE: {
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    getCurrentLocation();
+//                } else {
+//                }
+//                break;
+//            }
+//        }
+//    }
 
     public void editLocation(View view) {
         String location = myLocation; // Provide the location or coordinates you want to show in Google Maps

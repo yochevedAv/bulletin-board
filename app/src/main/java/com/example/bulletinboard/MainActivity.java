@@ -93,19 +93,34 @@ package com.example.bulletinboard;//package com.example.bulletinboard;
 //    }
 //}
 
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.bulletinboard.ui.post.PostFragment;
 import com.example.bulletinboard.ui.home.HomeFragment;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.appbar.AppBarLayout;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
@@ -116,10 +131,19 @@ public class MainActivity extends AppCompatActivity {
     private Fragment fragmentHome;
     private Fragment fragmentPost;
 
+    private String myLocation;
+
+    private FusedLocationProviderClient fusedLocationProviderClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        //fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        //getCurrentLocation();
 
         // Initialize fragments
         fragmentHome = new HomeFragment();
@@ -134,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize the BottomNavigationView
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+
 
         // Set the default fragment
         setFragment(fragmentHome);
@@ -161,4 +186,65 @@ public class MainActivity extends AppCompatActivity {
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
+    private void getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+//        fusedLocationProviderClient.getLastLocation()
+//                .addOnSuccessListener(this, location -> {
+//                    if (location != null) {
+//                        double latitude = location.getLatitude();
+//                        double longitude = location.getLongitude();
+//
+//                        String address = reverseGeocode(latitude, longitude);
+//                        myLocation = address;
+//
+//
+//                    }
+//                });
+
+        LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(10000) // Update every 10 seconds
+                .setFastestInterval(5000); // Fastest update interval
+
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // Handle the received location
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    myLocation =  reverseGeocode(latitude,longitude);
+                }
+            }
+        };
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+    }
+
+    private String reverseGeocode(double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                // Get various address components, e.g., address, city, country, etc.
+                return address.getAddressLine(0);
+            } else {
+                return "Address not found";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Error during reverse geocoding";
+        }
+    }
+
 }
