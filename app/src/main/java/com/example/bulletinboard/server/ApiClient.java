@@ -1,5 +1,6 @@
-package com.example.bulletinboard;
+package com.example.bulletinboard.server;
 
+import com.example.bulletinboard.data.model.UserDeserializer;
 import com.example.bulletinboard.data.model.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -1,6 +1,5 @@
-package com.example.bulletinboard;
+package com.example.bulletinboard.data.model;
 
-import com.example.bulletinboard.data.model.User;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -19,7 +18,7 @@ public class UserDeserializer implements JsonDeserializer<User> {
                 userJson.get("email").getAsString(),
                 userJson.get("username").getAsString(),
                 userJson.get("password").getAsString(),
-                userJson.get("_id").getAsString()
+                userJson.get("id").getAsString()
         );
         return user;
     }

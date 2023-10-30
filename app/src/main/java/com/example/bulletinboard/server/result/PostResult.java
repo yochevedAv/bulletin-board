@@ -1,4 +1,4 @@
-package com.example.bulletinboard;
+package com.example.bulletinboard.server.result;
 
 import androidx.annotation.Nullable;
 

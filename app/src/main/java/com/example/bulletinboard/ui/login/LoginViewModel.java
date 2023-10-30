@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel;
 
 import android.util.Patterns;
 
-import com.example.bulletinboard.ResponseResult;
-import com.example.bulletinboard.data.LoginDataSource;
-import com.example.bulletinboard.data.ResponseCallback;
+import com.example.bulletinboard.server.result.ResponseResult;
+import com.example.bulletinboard.server.datasource.LoginDataSource;
+import com.example.bulletinboard.server.callback.ResponseCallback;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.R;
 
@@ -47,7 +47,6 @@ public class LoginViewModel extends ViewModel implements ResponseCallback<User> 
         }
     }
 
-    // A placeholder username validation check
     private boolean isUserNameValid(String username) {
         if (username == null) {
             return false;
@@ -59,13 +58,9 @@ public class LoginViewModel extends ViewModel implements ResponseCallback<User> 
         }
     }
 
-    // A placeholder password validation check
     private boolean isPasswordValid(String password) {
         return password != null && password.trim().length() > 5;
     }
-
-
-
 
     @Override
     public void onResponseSuccess(User response) {

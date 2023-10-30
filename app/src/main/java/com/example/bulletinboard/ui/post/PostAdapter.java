@@ -1,41 +1,25 @@
-package com.example.bulletinboard;
+package com.example.bulletinboard.ui.post;
 
-import android.content.pm.PackageManager;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.bulletinboard.LocationHelper;
+import com.example.bulletinboard.R;
 import com.example.bulletinboard.data.model.Post;
 import com.example.bulletinboard.ui.home.BulletinBoardViewModel;
-import com.example.bulletinboard.ui.post.PostFragment;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
 
 import com.example.bulletinboard.databinding.ItemPostBinding;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -45,7 +29,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private BulletinBoardViewModel viewModel;
 
     private String myLocation;
-    private boolean isFilterEnabled;
 
 
     public PostAdapter(BulletinBoardViewModel viewModel, String myLocation, MyButtonClickListener listener ) {
@@ -58,7 +41,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public void setPosts(List<Post> posts) {
         this.posts = posts;
         this.filteredPosts = new ArrayList<>(posts);
-        notifyDataSetChanged(); // Notify the adapter that the data has changed
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -93,7 +76,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     public void filter(String text) {
-        filteredPosts.clear();
+        if (filteredPosts!=null) {
+            filteredPosts.clear();
+        }
         if (text.isEmpty()) {
             filteredPosts.addAll(posts);
         } else {
@@ -107,7 +92,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
             }
         }
-        //(filteredPosts);
         notifyDataSetChanged();
     }
 
@@ -183,6 +167,4 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
 
     }
-
-
 }

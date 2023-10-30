@@ -9,11 +9,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.bulletinboard.R;
-import com.example.bulletinboard.ResponseResult;
-import com.example.bulletinboard.data.ResponseCallback;
+import com.example.bulletinboard.server.datasource.CreatePostDataSource;
+import com.example.bulletinboard.server.result.ResponseResult;
+import com.example.bulletinboard.server.callback.ResponseCallback;
 import com.example.bulletinboard.data.model.Post;
-import com.example.bulletinboard.ui.createPost.CreatePostDataSource;
-import com.example.bulletinboard.ui.post.CreatePostFormState;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -44,9 +43,6 @@ public class CreatePostViewModel extends ViewModel implements ResponseCallback<P
         return responseResult;
     }
 
-//    public void register(String username, String password, String email) {
-//        dataSource.register(email, password ,username, this);
-//    }
 
     public void CreatePostDataChanged(String title, String creatorName, String date,String location, String description) {
         if (!isTitleValid(title)){
@@ -64,19 +60,14 @@ public class CreatePostViewModel extends ViewModel implements ResponseCallback<P
         }
     }
 
-
-
-
     public static boolean isValidDate(String dateStr, String dateFormat) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
             Date date = sdf.parse(dateStr);
             if (date != null) {
-                // The date is valid
                 return true;
             }
         } catch (ParseException e) {
-            // Date parsing failed, indicating an invalid date
             e.printStackTrace();
         }
         return false;
@@ -97,12 +88,11 @@ public class CreatePostViewModel extends ViewModel implements ResponseCallback<P
     public static boolean isValidAddress(Context context, String address) {
         Geocoder geocoder = new Geocoder(context);
         try {
-            // Attempt to geocode the address
             List<Address> addresses = geocoder.getFromLocationName(address, 1);
             return addresses != null && !addresses.isEmpty();
         } catch (IOException e) {
             e.printStackTrace();
-            return false; // An error occurred during geocoding
+            return false;
         }
     }
 

@@ -1,10 +1,10 @@
-package com.example.bulletinboard.data;
+package com.example.bulletinboard.server.datasource;
 
-import com.example.bulletinboard.ApiClient;
-import com.example.bulletinboard.BulletinBoardService;
-import com.example.bulletinboard.data.model.ErrorResponse;
 import com.example.bulletinboard.data.model.User;
-import com.example.bulletinboard.data.model.User;
+import com.example.bulletinboard.server.ApiClient;
+import com.example.bulletinboard.server.BulletinBoardService;
+import com.example.bulletinboard.server.ErrorResponse;
+import com.example.bulletinboard.server.callback.ResponseCallback;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -13,9 +13,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * Class that handles authentication w/ login credentials and retrieves user information.
- */
 public class LoginDataSource {
 
     ApiClient apiClient = ApiClient.getInstance();
@@ -28,7 +25,6 @@ public class LoginDataSource {
             public void onResponse(Call<User> call, Response<User> response) {
 
                 if (response.isSuccessful()) {
-                    // Handle a successful response here
                     User user = response.body();
                     responseCallback.onResponseSuccess(user);
                 } else {
@@ -42,10 +38,7 @@ public class LoginDataSource {
                         }
                     }
                     ErrorResponse errorData = new Gson().fromJson(errorBodyString, ErrorResponse.class);
-
                     String errorMessage = errorData.getError();
-
-
                     responseCallback.onResponseFailure(new Exception("Login failed: "),errorMessage);
                 }
             }
@@ -56,9 +49,6 @@ public class LoginDataSource {
             }
         });
     }
-
-
-
 
     public void logout() {
         // TODO: revoke authentication

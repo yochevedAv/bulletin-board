@@ -1,33 +1,32 @@
-package com.example.bulletinboard;
+package com.example.bulletinboard.server.result;
 
 import androidx.annotation.Nullable;
 
-import com.example.bulletinboard.data.model.User;
+import com.example.bulletinboard.data.model.Post;
 
-/**
- * Authentication result : success (user details) or error message.
- */
-public class ResponseResult {
+
+public class UpdatePostResult {
+
     @Nullable
-    private User success;
+    private Post success;
     @Nullable
     private Integer error;
 
     @Nullable
     private String message;
 
-    public ResponseResult(@Nullable Integer error, @Nullable String message) {
+    public UpdatePostResult(@Nullable Integer error, @Nullable String message) {
         this.error = error;
         this.message = message;
     }
 
 
-    public ResponseResult(@Nullable User success) {
+    public UpdatePostResult(@Nullable Post success) {
         this.success = success;
     }
 
     @Nullable
-    public User getSuccess() {
+    public Post getSuccess() {
         return success;
     }
 
@@ -41,3 +40,4 @@ public class ResponseResult {
         return message;
     }
 }
+

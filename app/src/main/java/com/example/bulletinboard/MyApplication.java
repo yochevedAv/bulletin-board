@@ -1,14 +1,11 @@
 package com.example.bulletinboard;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.widget.Toast;
 
 import com.example.bulletinboard.data.model.User;
+import com.example.bulletinboard.server.ApiClient;
 import com.example.bulletinboard.ui.login.LoginActivity;
-import com.example.bulletinboard.ui.registration.RegistrationActivity;
 
 public class MyApplication extends Application {
     @Override

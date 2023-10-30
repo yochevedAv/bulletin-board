@@ -1,29 +1,19 @@
 package com.example.bulletinboard.ui.home;
 
 import android.content.Context;
-import android.util.Patterns;
-import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.bulletinboard.ApiClient;
-import com.example.bulletinboard.BulletinBoardService;
-import com.example.bulletinboard.PostResult;
+import com.example.bulletinboard.server.ApiClient;
+import com.example.bulletinboard.server.BulletinBoardService;
+import com.example.bulletinboard.server.result.PostResult;
 import com.example.bulletinboard.R;
-import com.example.bulletinboard.ResponseResult;
-import com.example.bulletinboard.UpdatePostResult;
-import com.example.bulletinboard.data.ResponseCallback;
-import com.example.bulletinboard.data.model.ErrorResponse;
+import com.example.bulletinboard.server.result.UpdatePostResult;
+import com.example.bulletinboard.server.callback.ResponseCallback;
+import com.example.bulletinboard.server.ErrorResponse;
 import com.example.bulletinboard.data.model.Post;
-import com.example.bulletinboard.data.model.User;
-import com.example.bulletinboard.ui.BulletinBoardPostsResult;
-import com.example.bulletinboard.ui.post.PostFragment;
-import com.example.bulletinboard.ui.registration.RegistrationDataSource;
-import com.example.bulletinboard.ui.registration.RegistrationFormState;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -45,7 +35,6 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
     private MutableLiveData<Boolean> deletePostResult = new MutableLiveData<>();
     private MutableLiveData<PostResult> postResult = new MutableLiveData<>();
     private MutableLiveData<UpdatePostResult> updatePostResult = new MutableLiveData<>();
-//    private MutableLiveData<Post> updatePostLiveData = new MutableLiveData<>();
 
     public LiveData<List<Post>> getPostsLiveData() {
         return postsLiveData;
@@ -54,9 +43,11 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
     public LiveData<Boolean> getDeletePostResult() {
         return deletePostResult;
     }
+
     public LiveData<UpdatePostResult> getUpdatePostResult() {
         return updatePostResult;
     }
+
     public LiveData<PostResult> getResponseResult() {
         return postResult;
     }
@@ -71,13 +62,10 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
             public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
 
                 if (response.isSuccessful()) {
-                    // Handle a successful response here
                     postsLiveData.setValue(response.body());
                     postResult.setValue(new PostResult(response.body()));
-
                 } else {
                     String errorBodyString = "";
-
                     if (response.errorBody() != null) {
                         try {
                             errorBodyString = response.errorBody().string();
@@ -86,12 +74,8 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
                         }
                     }
                     ErrorResponse errorData = new Gson().fromJson(errorBodyString, ErrorResponse.class);
-
                     String errorMessage = errorData.getError();
-
                     postResult.setValue(new PostResult(R.string.get_posts_failed, errorMessage));
-
-                    //responseCallback.onResponseFailure(new Exception("Login failed: "), errorMessage);
                 }
             }
 
@@ -106,45 +90,40 @@ public class BulletinBoardViewModel extends ViewModel implements ResponseCallbac
 
     public void deletePost(String postId) {
 
-            Call<ResponseBody> deleteCall =bulletinBoardService.DeletePost(postId);
-            deleteCall.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+        Call<ResponseBody> deleteCall = bulletinBoardService.DeletePost(postId);
+        deleteCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-                    try {
-                        if(response.body()!=null) {
-                            JSONObject jsonResponse = new JSONObject(response.body().string());
-                            boolean success = jsonResponse.optBoolean("success", false);
-                            if (success) {
-                                deletePostResult.setValue(true);
-                            } else {
-                                deletePostResult.setValue(false);
-                            }
-                        }
-                        else{
+                try {
+                    if (response.body() != null) {
+                        JSONObject jsonResponse = new JSONObject(response.body().string());
+                        boolean success = jsonResponse.optBoolean("success", false);
+                        if (success) {
+                            deletePostResult.setValue(true);
+                        } else {
                             deletePostResult.setValue(false);
                         }
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
-                        // Handle exceptions
+                    } else {
+                        deletePostResult.setValue(false);
                     }
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                    // Handle exceptions
                 }
+            }
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    deletePostResult.setValue(false);
-                }
-            });
-        }
-
-
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                deletePostResult.setValue(false);
+            }
+        });
+    }
 
 
     public void onDeleteButtonClick(Post post) {
         deletePost(post.getId());
     }
-
-
 
 
     @Override

@@ -4,8 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.bulletinboard.data.LoginDataSource;
-import com.example.bulletinboard.ui.login.LoginViewModel;
+import com.example.bulletinboard.server.datasource.RegistrationDataSource;
 
 public class RegistrationViewModelFactory implements ViewModelProvider.Factory  {
 

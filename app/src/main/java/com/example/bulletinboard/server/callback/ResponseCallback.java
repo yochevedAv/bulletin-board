@@ -1,6 +1,4 @@
-package com.example.bulletinboard.data;
-
-import com.example.bulletinboard.data.model.User;
+package com.example.bulletinboard.server.callback;
 
 public interface ResponseCallback<T> {
     void onResponseSuccess(T response);

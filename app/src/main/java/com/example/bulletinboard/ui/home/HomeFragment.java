@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -26,7 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bulletinboard.PostAdapter;
+import com.example.bulletinboard.ui.post.PostAdapter;
 import com.example.bulletinboard.R;
 import com.example.bulletinboard.SharedPreferencesManager;
 import com.example.bulletinboard.data.model.Post;
@@ -47,13 +46,11 @@ public class HomeFragment extends Fragment implements PostAdapter.MyButtonClickL
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private FragmentHomeBinding binding;
-
     private BulletinBoardViewModel viewModel;
     private PostAdapter adapter;
-
     private FusedLocationProviderClient fusedLocationProviderClient;
-
     private String myLocation;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -64,12 +61,10 @@ public class HomeFragment extends Fragment implements PostAdapter.MyButtonClickL
         binding.setLifecycleOwner(this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
-        // Fetch posts
         viewModel.getPosts();
 
         RecyclerView recyclerView = binding.recyclerViewPosts;
         EditText searchEditText = binding.editTextSearch;
-        //ImageButton searchMyLocationButton = binding.searchLocationPosts;
 
 
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -123,14 +118,10 @@ public class HomeFragment extends Fragment implements PostAdapter.MyButtonClickL
             }
         });
 
-
-
         binding.myLocationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    // Handle the "On" state
-                    // For example, show a toast message
                     adapter.filterByCurrentLocation();
                 } else {
                     adapter.setPosts(viewModel.getPostsLiveData().getValue());
@@ -138,53 +129,12 @@ public class HomeFragment extends Fragment implements PostAdapter.MyButtonClickL
             }
         });
 
-        //earchMyLocationButton.setOnClickListener(view -> adapter.filterByCurrentLocation());
+        binding.logoutButton.setOnClickListener(view -> {
 
-
-
-
-
-//        searchEditText.seton(view -> {
-//            // Handle the click event on the drawableEnd here
-//            // This will be triggered when the user clicks on the drawableEnd.
-//            // You can perform your search or any other action.
-//        });
-
-//        searchEditText.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (event.getAction() == MotionEvent.ACTION_UP) {
-//                    int clearButtonStart = searchEditText.getRight() - searchEditText.getCompoundDrawables()[2].getBounds().width();
-//
-//                    if (event.getRawX() >= clearButtonStart) {
-//                        // Clear the text
-//                        searchEditText.setText("");
-//                        return true;
-//                    }
-//                }
-//                return false;
-//            }
-//        });
-
-
-
-
-
-
-
-        binding.logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                SharedPreferencesManager.clearUser(getActivity().getApplicationContext());
-
-
-                Intent intent = new Intent(view.getContext(), LoginActivity.class);
-                view.getContext().startActivity(intent);
-            }
+            SharedPreferencesManager.clearUser(getActivity().getApplicationContext());
+            Intent intent = new Intent(view.getContext(), LoginActivity.class);
+            view.getContext().startActivity(intent);
         });
-
-
 
         return binding.getRoot();
     }
@@ -237,9 +187,6 @@ public class HomeFragment extends Fragment implements PostAdapter.MyButtonClickL
                     double longitude = location.getLongitude();
                     myLocation =  reverseGeocode(latitude,longitude);
                     adapter.setCurrentLocation(myLocation);
-
-//                    if(locationEditText.getText().toString().equals(""))
-//                        locationEditText.setText(myLocation);
                 }
             }
         };
@@ -253,13 +200,10 @@ public class HomeFragment extends Fragment implements PostAdapter.MyButtonClickL
             whatsappIntent.setType("text/plain");
             whatsappIntent.setPackage("com.whatsapp"); // Specify WhatsApp package name
 
-            // Content you want to share
             whatsappIntent.putExtra(Intent.EXTRA_TEXT, post.getTitle()+"\n" + post.getDescription()+"\n"+post.getCreatorName());
 
             startActivity(whatsappIntent);
         } catch (android.content.ActivityNotFoundException ex) {
-            // Handle the case where WhatsApp is not installed on the device
-            // You can open the Play Store to download WhatsApp or provide an alternative action
             Toast.makeText(getActivity(), "WhatsApp is not installed.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -274,7 +218,6 @@ public class HomeFragment extends Fragment implements PostAdapter.MyButtonClickL
 
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
-                // Get various address components, e.g., address, city, country, etc.
                 return address.getAddressLine(0);
             } else {
                 return "Address not found";

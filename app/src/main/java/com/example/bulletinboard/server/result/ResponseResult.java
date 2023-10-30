@@ -1,11 +1,10 @@
-package com.example.bulletinboard.ui.registration;
+package com.example.bulletinboard.server.result;
 
 import androidx.annotation.Nullable;
 
 import com.example.bulletinboard.data.model.User;
 
-public class RegistrationResult {
-
+public class ResponseResult {
     @Nullable
     private User success;
     @Nullable
@@ -14,23 +13,23 @@ public class RegistrationResult {
     @Nullable
     private String message;
 
-    RegistrationResult(@Nullable Integer error, @Nullable String message) {
+    public ResponseResult(@Nullable Integer error, @Nullable String message) {
         this.error = error;
         this.message = message;
     }
 
 
-    RegistrationResult(@Nullable User success) {
+    public ResponseResult(@Nullable User success) {
         this.success = success;
     }
 
     @Nullable
-    User getSuccess() {
+    public User getSuccess() {
         return success;
     }
 
     @Nullable
-    Integer getError() {
+    public Integer getError() {
         return error;
     }
 

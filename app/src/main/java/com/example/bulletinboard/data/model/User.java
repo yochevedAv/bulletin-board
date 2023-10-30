@@ -5,21 +5,21 @@ import androidx.annotation.Nullable;
 public class User {
 
     @Nullable
-    private String _id;
+    private String id;
     private String email;
     @Nullable
     private String username;
     private String password;
 
-    public User(String email, @Nullable String username, String password,@Nullable String _id) {
-        this._id = _id;
+    public User(String email, @Nullable String username, String password,@Nullable String id) {
+        this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;
     }
 
-    public String get_id() {
-        return _id;
+    public String getId() {
+        return id;
     }
 
     public String getEmail() {
@@ -34,8 +34,8 @@ public class User {
         return password;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public void setId(String _id) {
+        this.id = _id;
     }
 
     public void setEmail(String email) {

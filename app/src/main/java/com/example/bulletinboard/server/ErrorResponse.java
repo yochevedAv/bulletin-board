@@ -1,4 +1,4 @@
-package com.example.bulletinboard.data.model;
+package com.example.bulletinboard.server;
 
 public class ErrorResponse {
     private String message;

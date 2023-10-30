@@ -1,10 +1,10 @@
-package com.example.bulletinboard.ui.registration;
+package com.example.bulletinboard.server.datasource;
 
 
-import com.example.bulletinboard.ApiClient;
-import com.example.bulletinboard.BulletinBoardService;
-import com.example.bulletinboard.data.ResponseCallback;
-import com.example.bulletinboard.data.model.ErrorResponse;
+import com.example.bulletinboard.server.ApiClient;
+import com.example.bulletinboard.server.BulletinBoardService;
+import com.example.bulletinboard.server.callback.ResponseCallback;
+import com.example.bulletinboard.server.ErrorResponse;
 import com.example.bulletinboard.data.model.User;
 import com.google.gson.Gson;
 
@@ -14,9 +14,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * Class that handles authentication w/ login credentials and retrieves user information.
- */
 public class RegistrationDataSource {
 
     ApiClient apiClient = ApiClient.getInstance();
@@ -44,10 +41,7 @@ public class RegistrationDataSource {
                         }
                     }
                     ErrorResponse errorData = new Gson().fromJson(errorBodyString, ErrorResponse.class);
-
                     String errorMessage = errorData.getError();
-
-
                     responseCallback.onResponseFailure(new Exception("Login failed: "), errorMessage);
                 }
             }

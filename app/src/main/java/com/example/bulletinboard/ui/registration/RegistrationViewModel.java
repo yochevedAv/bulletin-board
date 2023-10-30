@@ -7,8 +7,9 @@ import androidx.lifecycle.ViewModel;
 
 import android.util.Patterns;
 
-import com.example.bulletinboard.ResponseResult;
-import com.example.bulletinboard.data.ResponseCallback;
+import com.example.bulletinboard.server.datasource.RegistrationDataSource;
+import com.example.bulletinboard.server.result.ResponseResult;
+import com.example.bulletinboard.server.callback.ResponseCallback;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.R;
 

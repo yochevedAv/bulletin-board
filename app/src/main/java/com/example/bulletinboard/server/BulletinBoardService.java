@@ -1,14 +1,18 @@
-package com.example.bulletinboard;
+package com.example.bulletinboard.server;
 
 import com.example.bulletinboard.data.model.Post;
-import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.data.model.User;
 
 import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.*;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
 
 public interface BulletinBoardService {
     @POST("register")
@@ -28,17 +32,5 @@ public interface BulletinBoardService {
 
     @PUT("updatePost")
     Call<Post> UpdatePost(@Body Post updatedPost);
-
-
-
-//    @GET("/posts")
-//    Call<List<Post>> getPosts();
-//
-//    @POST("/posts")
-//    Call<Post> createPost(@Body Post post);
-//
-//    @PUT("/posts/{id}")
-//    Call<Post> updatePost(@Path("id") int postId, @Body Post post);
-//
 
 }

@@ -2,7 +2,6 @@ package com.example.bulletinboard.ui.post;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -18,37 +17,32 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.bulletinboard.R;
-import com.example.bulletinboard.ResponseResult;
+import com.example.bulletinboard.server.result.ResponseResult;
 import com.example.bulletinboard.SharedPreferencesManager;
 import com.example.bulletinboard.data.model.Post;
 import com.example.bulletinboard.data.model.User;
 import com.example.bulletinboard.databinding.FragmentPostBinding;
-import com.example.bulletinboard.ui.createPost.createPostViewModelFactory;
 import com.example.bulletinboard.ui.home.HomeFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -57,7 +51,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 
 public class PostFragment extends Fragment {
@@ -117,6 +110,11 @@ public class PostFragment extends Fragment {
         final Button savePostButton = binding.buttonSavePost;
 
 
+        if(action){
+            binding.setEditPost(editPost);
+        }
+
+
         createPostViewModel.getCreatePostFormState().observe(getActivity(), new Observer<CreatePostFormState>() {
             @Override
             public void onChanged(@Nullable CreatePostFormState createPostFormState) {
@@ -155,10 +153,7 @@ public class PostFragment extends Fragment {
                 if (createPostResult.getSuccess() != null) {
                     moveToMainFragment();
                 }
-//                setResult(Activity.RESULT_OK);
-//
-//                //Complete and destroy login activity once successful
-//                finish();
+
             }
         });
 
@@ -179,18 +174,11 @@ public class PostFragment extends Fragment {
             }
         };
 
-
         titleEditText.addTextChangedListener(afterTextChangedListener);
         creatorNameEditText.addTextChangedListener(afterTextChangedListener);
         dateEditText.addTextChangedListener(afterTextChangedListener);
         locationEditText.addTextChangedListener(afterTextChangedListener);
         descriptionEditText.addTextChangedListener(afterTextChangedListener);
-
-        // Set the current date in the dateEditText field
-
-        //locationEditText.setText(myLocation);
-        setCurrentDate();
-
 
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -202,38 +190,7 @@ public class PostFragment extends Fragment {
 
         locationTextField.setEndIconOnClickListener(view -> editLocation(view));
 
-        if(action){
-            binding.setEditPost(editPost);
-        }
-
-//        LocationViewModel locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
-//
-//        locationViewModel.getLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
-//            @Override
-//            public void onChanged(Location location) {
-//                if (location != null) {
-//                    // Update your fragment UI with the new location data
-//                    double latitude = location.getLatitude();
-//                    double longitude = location.getLongitude();
-//                    // Update UI elements with the new location
-//                }
-//            }
-//        });
-//
-//        LocationCallback locationCallback = new LocationCallback() {
-//            @Override
-//            public void onLocationResult(LocationResult locationResult) {
-//                if (locationResult == null) {
-//                    return;
-//                }
-//                for (Location location : locationResult.getLocations()) {
-//                    // Handle the received location
-//                    locationViewModel.setLocation(location);
-//                }
-//            }
-//        };
-
-
+        setCurrentDate();
 
         return binding.getRoot();
     }
@@ -245,11 +202,11 @@ public class PostFragment extends Fragment {
         binding.buttonSavePost.setOnClickListener(v -> {
             User user = SharedPreferencesManager.getUser(getActivity());
             if (!action) {
-                createPostViewModel.createPost(user.get_id(), binding.editTextTitle.getText().toString(), binding.editTextCreatorName.getText().toString(), dateEditText.getText().toString(), locationEditText.getText().toString(), binding.editTextDescription.getText().toString());
+                createPostViewModel.createPost(user.getId(), binding.editTextTitle.getText().toString(), binding.editTextCreatorName.getText().toString(), dateEditText.getText().toString(), locationEditText.getText().toString(), binding.editTextDescription.getText().toString());
                 moveToMainFragment();
             }
             else{
-                createPostViewModel.editPost(user.get_id(), binding.editTextTitle.getText().toString(), binding.editTextCreatorName.getText().toString(), dateEditText.getText().toString(), locationEditText.getText().toString(), binding.editTextDescription.getText().toString(),editPost.getId());
+                createPostViewModel.editPost(user.getId(), binding.editTextTitle.getText().toString(), binding.editTextCreatorName.getText().toString(), dateEditText.getText().toString(), locationEditText.getText().toString(), binding.editTextDescription.getText().toString(),editPost.getId());
                 moveToMainFragment();
             }
         });
@@ -300,6 +257,8 @@ public class PostFragment extends Fragment {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         dateEditText.setText(dateFormat.format(calendar.getTime()));
+        binding.setCurrentDate(dateFormat.format(calendar.getTime()));
+        Log.d("dateEditText",dateEditText.getText().toString());
     }
 
     private String reverseGeocode(double latitude, double longitude) {
@@ -322,21 +281,6 @@ public class PostFragment extends Fragment {
         }
     }
 
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        switch (requestCode) {
-//            case LOCATION_PERMISSION_REQUEST_CODE: {
-//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    getCurrentLocation();
-//                } else {
-//                }
-//                break;
-//            }
-//        }
-//    }
-
     public void editLocation(View view) {
         String location = myLocation; // Provide the location or coordinates you want to show in Google Maps
 
@@ -356,31 +300,6 @@ public class PostFragment extends Fragment {
         }
     }
 
-
-
-
-    // @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (requestCode == REQUEST_LOCATION_UPDATE) {
-//            if (resultCode == RESULT_OK) {
-//                // Get the updated location from the data
-//                String updatedLocation = data.getStringExtra("location");
-//                if (updatedLocation != null) {
-//                    // Update the location EditText with the new location
-//                    EditText locationEditText = binding.editTextLocation;
-//                    locationEditText.setText(updatedLocation);
-//                }
-//            }
-//        }
-//
-//        if (requestCode == REQUEST_LOCATION_UPDATE && resultCode == RESULT_OK) {
-//            // Handle the chosen location data from the 'data' intent
-//            String chosenLocation = data.getDataString();
-//            locationEditText.setText(chosenLocation);
-//        }
-//    }
 
     private boolean isPackageInstalled(String packageName) {
         try {

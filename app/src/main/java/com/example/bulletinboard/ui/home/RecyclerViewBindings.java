@@ -1,9 +1,10 @@
-package com.example.bulletinboard;
+package com.example.bulletinboard.ui.home;
 
 import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bulletinboard.data.model.Post;
+import com.example.bulletinboard.ui.post.PostAdapter;
 
 import java.util.List;
 

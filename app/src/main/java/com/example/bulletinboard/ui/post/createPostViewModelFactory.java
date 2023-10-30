@@ -1,4 +1,4 @@
-package com.example.bulletinboard.ui.createPost;
+package com.example.bulletinboard.ui.post;
 
 import android.content.Context;
 
@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.bulletinboard.ui.post.CreatePostViewModel;
+import com.example.bulletinboard.server.datasource.CreatePostDataSource;
 
 public class createPostViewModelFactory implements ViewModelProvider.Factory {
     private final Context context;

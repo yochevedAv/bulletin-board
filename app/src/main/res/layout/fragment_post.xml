@@ -9,6 +9,10 @@
         <import type="android.view.View" />
 
         <variable
+            name="currentDate"
+            type="String" />
+
+        <variable
             name="editPost"
             type="com.example.bulletinboard.data.model.Post" />
     </data>
@@ -75,7 +79,7 @@
             android:id="@+id/editTextDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text='@{editPost.date ?? ""}'/>
+            android:text='@{ editPost.date ?? currentDate}'/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout

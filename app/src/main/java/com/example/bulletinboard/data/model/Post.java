@@ -7,7 +7,7 @@ import java.io.Serializable;
 public class Post implements Serializable {
 
     @Nullable
-    private String _id;
+    private String id;
     private String title;
     private String creatorName;
     private String userId;
@@ -15,18 +15,18 @@ public class Post implements Serializable {
     private String location;
     private String description;
 
-    public Post(String userId,String title, String creatorName, String date, String location, String description, @Nullable String _id ) {
+    public Post(String userId,String title, String creatorName, String date, String location, String description, @Nullable String id ) {
         this.userId = userId;
         this.title = title;
         this.creatorName = creatorName;
         this.date = date;
         this.location = location;
         this.description = description;
-        this._id = _id;
+        this.id = id;
     }
 
     public String getId() {
-        return _id;
+        return id;
     }
 
     public String getTitle() {
